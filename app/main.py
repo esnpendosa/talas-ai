@@ -53,6 +53,7 @@ from app.api.auth.router import router as auth_router
 from app.api.admin.users import router as admin_users_router
 from app.api.regulations.router import router as regulations_router
 from app.api.documents.router import router as documents_router
+from app.api.ai.router import router as ai_router_endpoint
 
 
 # ------------------------------------------------------------------ #
@@ -86,6 +87,27 @@ async def lifespan(app: FastAPI):
     # Buat semua tabel
     await create_all_tables()
     logger.info("Database tables initialized.")
+
+    # Setup FTS5 search index
+    from app.database.connection import get_session_maker
+    from app.services.rag.search import ensure_fts_table
+    session_factory = get_session_maker()
+    async with session_factory() as session:
+        await ensure_fts_table(session)
+
+    # Setup AI Router
+    from app.services.ai.router import setup_ai_router
+    setup_ai_router(
+        privacy_mode=settings.DEFAULT_AI_MODE,
+        ollama_url=settings.OLLAMA_BASE_URL if settings.OLLAMA_ENABLED else None,
+        ollama_enabled=settings.OLLAMA_ENABLED,
+        lmstudio_url=settings.LMSTUDIO_BASE_URL if settings.LMSTUDIO_ENABLED else None,
+        lmstudio_enabled=settings.LMSTUDIO_ENABLED,
+        cloud_enabled=settings.CLOUD_AI_ENABLED,
+        openai_key=settings.OPENAI_API_KEY,
+        openai_url=settings.OPENAI_BASE_URL,
+    )
+    logger.info("AI Router initialized.")
 
     # Seed database jika first run
     if settings.FIRST_RUN:
@@ -240,6 +262,7 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(admin_users_router, prefix="/api")
 app.include_router(regulations_router, prefix="/api")
 app.include_router(documents_router, prefix="/api")
+app.include_router(ai_router_endpoint, prefix="/api")
 
 # Placeholder routers (akan diisi di phase selanjutnya)
 # app.include_router(regulations_router, prefix="/api/regulations")
