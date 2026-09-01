@@ -1,0 +1,61 @@
+# ============================================================
+# TALAS AI — Requirements
+# Python 3.12+ (diuji di Python 3.14)
+# ============================================================
+
+# Core Framework
+fastapi>=0.115.5
+uvicorn[standard]>=0.32.1
+pydantic>=2.11.0
+pydantic-settings>=2.7.0
+
+# Database
+sqlalchemy==2.0.36
+aiosqlite==0.20.0
+
+# Authentication & Security
+argon2-cffi==23.1.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart>=0.0.18
+itsdangerous>=2.2.0
+
+# HTTP Client
+httpx==0.28.1
+
+# Configuration
+python-dotenv>=1.0.1
+
+# PDF Processing (install terpisah jika diperlukan)
+# PyMuPDF==1.25.1
+
+# DOCX (install terpisah jika diperlukan)
+# python-docx==1.1.2
+
+# PDF Report (install terpisah jika diperlukan)
+# reportlab==4.2.5
+
+# Templates
+jinja2>=3.1.4
+
+# File utilities
+aiofiles>=24.1.0
+
+# Logging
+structlog>=24.4.0
+
+# Testing
+pytest>=8.3.4
+pytest-asyncio>=0.24.0
+pytest-cov>=6.0.0
+
+# Utilities
+click>=8.1.8
+rich>=13.9.4
+
+# Desktop (install terpisah jika diperlukan)
+# PySide6==6.8.1
+
+# Vector/Embedding (install terpisah berdasarkan hardware)
+# faiss-cpu==1.9.0
+# sentence-transformers==3.3.1
