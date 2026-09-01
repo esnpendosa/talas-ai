@@ -52,6 +52,7 @@ from app.api.health import router as health_router
 from app.api.auth.router import router as auth_router
 from app.api.admin.users import router as admin_users_router
 from app.api.regulations.router import router as regulations_router
+from app.api.documents.router import router as documents_router
 
 
 # ------------------------------------------------------------------ #
@@ -238,6 +239,7 @@ app.include_router(health_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(admin_users_router, prefix="/api")
 app.include_router(regulations_router, prefix="/api")
+app.include_router(documents_router, prefix="/api")
 
 # Placeholder routers (akan diisi di phase selanjutnya)
 # app.include_router(regulations_router, prefix="/api/regulations")
