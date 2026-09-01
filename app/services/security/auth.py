@@ -86,16 +86,20 @@ async def get_user_roles(db: AsyncSession, user_id: int) -> List[str]:
 
 
 async def get_user_permissions(db: AsyncSession, user_id: int) -> List[str]:
-    """Ambil daftar permission milik user (via roles)."""
+    """
+    Ambil daftar permission milik user dalam format 'resource:action'.
+    Format ini konsisten meski nama permission punya suffix.
+    """
+    from app.models.user import Permission, RolePermission, Role, UserRole
     result = await db.execute(
-        select(Permission.name)
+        select(Permission.resource, Permission.action)
         .join(RolePermission, RolePermission.permission_id == Permission.id)
         .join(Role, Role.id == RolePermission.role_id)
         .join(UserRole, UserRole.role_id == Role.id)
         .where(UserRole.user_id == user_id)
         .distinct()
     )
-    return [row[0] for row in result.fetchall()]
+    return [f"{row[0]}:{row[1]}" for row in result.fetchall()]
 
 
 async def get_user_by_id(db: AsyncSession, user_id: int) -> Optional[User]:
