@@ -39,7 +39,6 @@ class Permission(Base, TimestampMixin):
     )
 
     __table_args__ = (
-        UniqueConstraint("resource", "action", name="uq_permission_resource_action"),
         Index("ix_permission_resource", "resource"),
     )
 
