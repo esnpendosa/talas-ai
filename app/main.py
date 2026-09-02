@@ -54,6 +54,7 @@ from app.api.admin.users import router as admin_users_router
 from app.api.regulations.router import router as regulations_router
 from app.api.documents.router import router as documents_router
 from app.api.ai.router import router as ai_router_endpoint
+from app.api.chat.router import router as chat_router
 
 
 # ------------------------------------------------------------------ #
@@ -263,6 +264,7 @@ app.include_router(admin_users_router, prefix="/api")
 app.include_router(regulations_router, prefix="/api")
 app.include_router(documents_router, prefix="/api")
 app.include_router(ai_router_endpoint, prefix="/api")
+app.include_router(chat_router, prefix="/api")
 
 # Placeholder routers (akan diisi di phase selanjutnya)
 # app.include_router(regulations_router, prefix="/api/regulations")
