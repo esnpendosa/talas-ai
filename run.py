@@ -81,7 +81,10 @@ def main():
     host = args.host or settings.HOST
     port = args.port or settings.PORT
     workers = args.workers or settings.WORKERS
-    reload = args.reload or settings.DEBUG
+    # PENTING: --reload hanya aktif jika flag eksplisit diberikan
+    # Jangan auto-enable reload dari DEBUG=true karena tidak kompatibel
+    # dengan Python 3.14 multiprocessing di beberapa kondisi
+    reload = args.reload  # hanya jika --reload flag diberikan secara eksplisit
 
     print(f"""
 ╔══════════════════════════════════════════════════════════════╗

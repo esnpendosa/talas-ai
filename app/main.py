@@ -17,7 +17,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 
 from app.config import settings
 from app.database.connection import (
@@ -164,9 +163,9 @@ AI bukan pengambil keputusan hukum. AI adalah co-pilot ASN.
 Default: **LOCAL ONLY** — dokumen tidak dikirim ke cloud tanpa izin eksplisit pengguna.
     """,
     version=settings.APP_VERSION,
-    docs_url="/docs" if settings.DEBUG else None,
-    redoc_url="/redoc" if settings.DEBUG else None,
-    openapi_url="/openapi.json" if settings.DEBUG else None,
+    docs_url="/docs" if settings.ENVIRONMENT != "production" else None,
+    redoc_url="/redoc" if settings.ENVIRONMENT != "production" else None,
+    openapi_url="/openapi.json" if settings.ENVIRONMENT != "production" else None,
     lifespan=lifespan,
 )
 
@@ -257,7 +256,18 @@ templates_dir = os.path.join(os.path.dirname(__file__), "templates")
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-templates = Jinja2Templates(directory=templates_dir)
+# Buat Jinja2Templates dengan auto_reload=False untuk menghindari
+# bug LRU cache di Python 3.14 (unhashable dict key)
+try:
+    from jinja2 import Environment, FileSystemLoader
+    _jinja_env = Environment(
+        loader=FileSystemLoader(templates_dir),
+        auto_reload=False,
+        cache_size=0,  # Disable cache — fix Python 3.14 bug
+    )
+    _jinja_ok = True
+except Exception:
+    _jinja_ok = False
 
 
 # ------------------------------------------------------------------ #
@@ -283,17 +293,22 @@ app.include_router(backup_router, prefix="/api")
 @app.get("/", include_in_schema=False)
 async def root(request: Request):
     """
-    Root endpoint.
-    Jika template index.html ada dan dapat di-render, tampilkan UI.
-    Jika tidak, kembalikan JSON info.
+    Root endpoint — serve dashboard HTML.
+    Membaca file HTML langsung untuk menghindari Jinja2 cache bug di Python 3.14.
     """
-    index_template = os.path.join(templates_dir, "index.html")
-    if os.path.exists(index_template):
-        try:
-            return templates.TemplateResponse("index.html", {"request": request})
-        except Exception as e:
-            logger.warning(f"Template render failed, falling back to JSON: {e}")
+    from fastapi.responses import HTMLResponse
 
+    index_path = os.path.join(templates_dir, "index.html")
+    if os.path.exists(index_path):
+        try:
+            # Baca dan serve HTML langsung — bypass Jinja2 cache bug
+            with open(index_path, "r", encoding="utf-8") as f:
+                html_content = f.read()
+            return HTMLResponse(content=html_content, status_code=200)
+        except Exception as e:
+            logger.warning(f"HTML serve failed: {e}")
+
+    # Fallback JSON jika file tidak ada
     return JSONResponse({
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,

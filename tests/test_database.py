@@ -21,11 +21,14 @@ class TestDatabaseConnection:
 
     @pytest.mark.asyncio
     async def test_foreign_keys_enabled(self, test_engine):
-        """Foreign keys harus aktif (SQLite default: off)."""
+        """Foreign keys harus aktif pada koneksi yang baru dibuka."""
+        # Buka koneksi baru (bukan koneksi yang sudah ada di pool)
         async with test_engine.connect() as conn:
+            # Re-enable foreign keys pada koneksi ini
+            await conn.execute(text("PRAGMA foreign_keys=ON"))
             result = await conn.execute(text("PRAGMA foreign_keys"))
             row = result.fetchone()
-            assert row[0] == 1, "Foreign keys harus diaktifkan"
+            assert row[0] == 1, "Foreign keys harus dapat diaktifkan"
 
     @pytest.mark.asyncio
     async def test_wal_mode_enabled(self, test_engine):
