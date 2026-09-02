@@ -2,275 +2,1137 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="description" content="TALAS AI — Telaah Regulasi Berbasis Artificial Intelligence">
     <meta name="theme-color" content="#1a4a7a">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="TALAS AI">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="/static/manifest.json">
-    <link rel="apple-touch-icon" href="/static/img/icon-192.png">
+    <link rel="apple-touch-icon" href="/static/img/icon.svg">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <script src="/static/js/app.js" defer></script>
     <title>TALAS AI — Telaah Regulasi</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
             --primary: #1a4a7a;
             --primary-light: #2563a8;
+            --primary-dark: #0f2d4a;
             --accent: #e8a020;
-            --bg: #f5f7fa;
-            --white: #ffffff;
-            --text: #1a1a2e;
-            --text-muted: #6b7280;
+            --accent-dark: #c4861a;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --surface-2: #f8fafc;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
             --border: #e2e8f0;
-            --warning-bg: #fef9e7;
-            --warning-border: #f59e0b;
+            --border-focus: #3b82f6;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow: 0 4px 12px rgba(0,0,0,0.10);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --radius: 10px;
+            --radius-lg: 16px;
+            --transition: all 0.18s ease;
         }
 
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* ── Layout ─────────────────────────────────── */
+
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ── Sidebar ─────────────────────────────────── */
+
+        .sidebar {
+            width: 240px;
+            background: var(--primary);
+            color: white;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
+            flex-shrink: 0;
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.25s ease;
         }
 
-        .container {
-            max-width: 640px;
-            width: 100%;
-            text-align: center;
+        .sidebar-logo {
+            padding: 1.25rem 1.25rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
         }
 
-        .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+        .sidebar-logo .logo-icon {
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; margin-bottom: 0.5rem;
         }
 
-        .logo-icon {
-            width: 56px;
-            height: 56px;
-            background: var(--primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            color: white;
+        .sidebar-logo .logo-title {
+            font-size: 1.2rem; font-weight: 700; letter-spacing: -0.3px;
         }
 
-        .logo-text {
-            text-align: left;
+        .sidebar-logo .logo-sub {
+            font-size: 0.65rem; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.5px;
         }
 
-        .logo-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            letter-spacing: -0.5px;
+        .sidebar-nav {
+            flex: 1;
+            padding: 0.75rem 0;
         }
 
-        .logo-sub {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
+        .nav-section-title {
+            font-size: 0.65rem;
             text-transform: uppercase;
+            letter-spacing: 0.8px;
+            opacity: 0.5;
+            padding: 0.75rem 1.25rem 0.35rem;
         }
 
-        .tagline {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-            font-style: italic;
-        }
-
-        .status-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-
-        .status-row {
+        .nav-item {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0.6rem 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
-        }
-
-        .status-row:last-child { border-bottom: none; }
-
-        .status-label { color: var(--text-muted); }
-        .status-value { font-weight: 600; color: var(--primary); }
-
-        .badge {
-            display: inline-block;
-            padding: 0.2rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .badge-green { background: #d1fae5; color: #065f46; }
-        .badge-blue { background: #dbeafe; color: #1e40af; }
-        .badge-orange { background: #fef3c7; color: #92400e; }
-
-        .warning-banner {
-            background: var(--warning-bg);
-            border: 1px solid var(--warning-border);
-            border-radius: 8px;
-            padding: 1rem 1.25rem;
-            margin-bottom: 1.5rem;
+            gap: 0.625rem;
+            padding: 0.625rem 1.25rem;
             font-size: 0.875rem;
-            color: #78350f;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            text-align: left;
-        }
-
-        .warning-banner .icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
-
-        .btn {
-            display: inline-block;
-            padding: 0.75rem 2rem;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
+            color: rgba(255,255,255,0.82);
             text-decoration: none;
+            border-radius: 0;
             cursor: pointer;
-            border: none;
-            transition: all 0.15s ease;
+            transition: var(--transition);
+            border: none; background: none; width: 100%; text-align: left;
         }
 
-        .btn-primary {
-            background: var(--primary);
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-item.active { background: rgba(255,255,255,0.18); color: white; font-weight: 600; }
+
+        .nav-item .nav-icon { font-size: 1rem; width: 1.25rem; text-align: center; flex-shrink: 0; }
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent);
             color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            min-width: 18px; text-align: center;
         }
 
-        .btn-primary:hover {
-            background: var(--primary-light);
-            transform: translateY(-1px);
+        .sidebar-footer {
+            padding: 0.875rem 1.25rem;
+            border-top: 1px solid rgba(255,255,255,0.12);
+            font-size: 0.7rem;
+            opacity: 0.55;
+            line-height: 1.4;
         }
 
-        .btn-outline {
-            background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            margin-left: 0.75rem;
+        /* ── Main Content ─────────────────────────────── */
+
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
+        /* ── Top Bar ─────────────────────────────────── */
+
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: sticky;
+            top: 0; z-index: 50;
+            box-shadow: var(--shadow-sm);
         }
 
-        .footer {
-            margin-top: 2rem;
+        .topbar-hamburger {
+            display: none;
+            background: none; border: none;
+            font-size: 1.25rem; cursor: pointer; color: var(--text-muted);
+            padding: 0.25rem;
+        }
+
+        .topbar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .topbar-disclaimer {
+            font-size: 0.72rem;
+            color: var(--warning);
+            background: #fef3c7;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .topbar-status {
+            display: flex; align-items: center; gap: 0.4rem;
             font-size: 0.8rem;
             color: var(--text-muted);
         }
 
-        @media (max-width: 480px) {
-            .logo { flex-direction: column; gap: 0.5rem; }
-            .logo-text { text-align: center; }
-            .btn-outline { margin-left: 0; margin-top: 0.5rem; }
+        .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
         }
+
+        .dot-green { background: var(--success); }
+        .dot-red { background: var(--danger); }
+        .dot-yellow { background: var(--warning); }
+        .dot-pulse {
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ── Page Content ─────────────────────────────── */
+
+        .page-content {
+            flex: 1;
+            padding: 1.5rem;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem;
+        }
+
+        .page-header p {
+            color: var(--text-muted); font-size: 0.875rem;
+        }
+
+        /* ── Stats Grid ─────────────────────────────── */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+
+        .stat-card .stat-icon {
+            font-size: 1.5rem; margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.75rem; font-weight: 700; color: var(--primary);
+            line-height: 1;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.78rem; color: var(--text-muted); margin-top: 0.3rem;
+            font-weight: 500;
+        }
+
+        .stat-card.warning .stat-value { color: var(--warning); }
+        .stat-card.danger .stat-value { color: var(--danger); }
+        .stat-card.success .stat-value { color: var(--success); }
+
+        /* ── Disclaimer Banner ─────────────────────────── */
+
+        .disclaimer-banner {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-left: 4px solid #f59e0b;
+            border-radius: var(--radius);
+            padding: 0.875rem 1.25rem;
+            display: flex;
+            gap: 0.875rem;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+            color: #78350f;
+        }
+
+        .disclaimer-banner strong { display: block; margin-bottom: 0.25rem; }
+
+        /* ── Cards ─────────────────────────────────── */
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ── Provider Status ─────────────────────────── */
+
+        .provider-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.875rem;
+        }
+
+        .provider-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .provider-name { font-weight: 600; font-size: 0.9rem; }
+        .provider-status { font-size: 0.78rem; display: flex; align-items: center; gap: 0.35rem; }
+
+        /* ── API Endpoint List ─────────────────────────── */
+
+        .endpoint-list {
+            display: grid;
+            gap: 0.375rem;
+        }
+
+        .endpoint-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.875rem;
+            background: var(--surface-2);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-family: monospace;
+        }
+
+        .method {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            width: 40px; text-align: center; flex-shrink: 0;
+        }
+
+        .method-get { background: #dbeafe; color: #1d4ed8; }
+        .method-post { background: #d1fae5; color: #065f46; }
+        .method-put { background: #fef3c7; color: #92400e; }
+        .method-delete { background: #fee2e2; color: #991b1b; }
+
+        .endpoint-path { flex: 1; color: var(--text); }
+        .endpoint-desc { color: var(--text-muted); font-family: sans-serif; font-size: 0.75rem; }
+
+        /* ── Chat ─────────────────────────────────────── */
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 60vh;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--surface);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-msg {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .chat-msg.user {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 3px;
+        }
+
+        .chat-msg.assistant {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            align-self: flex-start;
+            border-bottom-left-radius: 3px;
+        }
+
+        .chat-msg .disclaimer-tag {
+            font-size: 0.65rem;
+            color: var(--warning);
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.875rem;
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.625rem 0.875rem;
+            font-size: 0.875rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .chat-input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+
+        /* ── Buttons ─────────────────────────────────── */
+
+        .btn {
+            padding: 0.55rem 1.25rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--border); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.78rem; }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+        /* ── Loading Spinner ─────────────────────────── */
+
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Quick Start ─────────────────────────────── */
+
+        .quickstart-steps {
+            display: grid;
+            gap: 0.875rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            padding: 1rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        .step-num {
+            width: 32px; height: 32px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 { font-size: 0.9rem; margin-bottom: 0.2rem; }
+        .step-content p { font-size: 0.8rem; color: var(--text-muted); }
+        .step-content code {
+            background: rgba(0,0,0,0.06);
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+            font-size: 0.78rem;
+            font-family: monospace;
+        }
+
+        /* ── Mobile ─────────────────────────────────── */
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 240px;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: var(--shadow-lg);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .topbar-hamburger { display: block; }
+            .topbar-disclaimer { display: none; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .page-content { padding: 1rem; }
+            .chat-container { height: 50vh; }
+            .endpoint-desc { display: none; }
+        }
+
+        @media (max-width: 420px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        }
+
+        /* ── Sidebar overlay ─────────────────────────── */
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 99;
+        }
+
+        .sidebar-overlay.active { display: block; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Logo -->
-        <div class="logo">
+<a href="#main-content" class="skip-link">Langsung ke konten utama</a>
+<div class="app-wrapper">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
             <div class="logo-icon">⚖️</div>
-            <div class="logo-text">
-                <div class="logo-title">TALAS AI</div>
-                <div class="logo-sub">Telaah Regulasi Berbasis Artificial Intelligence</div>
-            </div>
+            <div class="logo-title">TALAS AI</div>
+            <div class="logo-sub">Telaah Regulasi</div>
         </div>
 
-        <p class="tagline">"AI sebagai Co-Pilot ASN untuk Telaah Regulasi"</p>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Utama</div>
+            <button class="nav-item active" data-page="dashboard" onclick="showPage('dashboard', this)">
+                <span class="nav-icon">📊</span> Dashboard
+            </button>
+            <button class="nav-item" data-page="regulations" onclick="showPage('regulations', this)">
+                <span class="nav-icon">📚</span> Regulasi
+            </button>
+            <button class="nav-item" data-page="raperbup" onclick="showPage('raperbup', this)">
+                <span class="nav-icon">📄</span> Raperbup
+            </button>
 
-        <!-- Disclaimer -->
-        <div class="warning-banner">
-            <span class="icon">⚠️</span>
-            <div>
-                <strong>TINJAUAN AWAL AI — WAJIB VERIFIKASI MANUSIA.</strong><br>
-                AI adalah co-pilot ASN, bukan pengambil keputusan hukum. Semua output AI wajib diverifikasi oleh analis hukum yang berwenang.
-            </div>
-        </div>
+            <div class="nav-section-title">Analisis</div>
+            <button class="nav-item" data-page="telaah" onclick="showPage('telaah', this)">
+                <span class="nav-icon">🔍</span> Telaah AI
+            </button>
+            <button class="nav-item" data-page="chatbot" onclick="showPage('chatbot', this)">
+                <span class="nav-icon">💬</span> Chatbot
+            </button>
+            <button class="nav-item" data-page="perbandingan" onclick="showPage('perbandingan', this)">
+                <span class="nav-icon">⚖️</span> Perbandingan
+            </button>
 
-        <!-- Status -->
-        <div class="status-card">
-            <div class="status-row">
-                <span class="status-label">Status Aplikasi</span>
-                <span class="badge badge-green">✓ Berjalan</span>
-            </div>
-            <div class="status-row">
-                <span class="status-label">Mode Privasi AI</span>
-                <span class="badge badge-blue">🔒 LOCAL ONLY</span>
-            </div>
-            <div class="status-row">
-                <span class="status-label">Database</span>
-                <span class="badge badge-green">SQLite ✓</span>
-            </div>
-            <div class="status-row">
-                <span class="status-label">Versi</span>
-                <span class="status-value">1.0.0 — Phase 1 Foundation</span>
-            </div>
-        </div>
+            <div class="nav-section-title">Alur Kerja</div>
+            <button class="nav-item" data-page="review" onclick="showPage('review', this)">
+                <span class="nav-icon">✅</span> Review
+                <span class="nav-badge" id="reviewBadge">0</span>
+            </button>
+            <button class="nav-item" data-page="laporan" onclick="showPage('laporan', this)">
+                <span class="nav-icon">📋</span> Laporan
+            </button>
 
-        <!-- Actions -->
-        <div>
-            <a href="/docs" class="btn btn-primary">📖 API Documentation</a>
-            <a href="/api/health" class="btn btn-outline">🩺 Health Check</a>
-        </div>
+            <div class="nav-section-title">Sistem</div>
+            <button class="nav-item" data-page="ai-model" onclick="showPage('ai-model', this)">
+                <span class="nav-icon">🤖</span> AI &amp; Model
+            </button>
+            <button class="nav-item" data-page="audit" onclick="showPage('audit', this)">
+                <span class="nav-icon">📝</span> Audit Log
+            </button>
+            <button class="nav-item" data-page="pengaturan" onclick="showPage('pengaturan', this)">
+                <span class="nav-icon">⚙️</span> Pengaturan
+            </button>
+        </nav>
 
-        <div class="footer">
-            <p>TALAS AI • Pemerintah Daerah • Phase 1 — Foundation</p>
-            <p style="margin-top:0.25rem;">Dokumen yang diupload adalah DATA, bukan instruksi AI.</p>
+        <div class="sidebar-footer">
+            TALAS AI v1.0.0 — MVP<br>
+            ⚠️ Wajib verifikasi manusia<br>
+            <small>Dokumen = DATA, bukan instruksi</small>
         </div>
+    </aside>
+
+    <!-- ── Main Content ── -->
+    <div class="main-content">
+
+        <!-- Top Bar -->
+        <header class="topbar">
+            <button class="topbar-hamburger" onclick="toggleSidebar()">☰</button>
+            <span class="topbar-title" id="topbarTitle">Dashboard</span>
+            <span class="topbar-disclaimer">⚠️ TINJAUAN AWAL AI — WAJIB VERIFIKASI MANUSIA</span>
+            <div class="topbar-status">
+                <span class="dot dot-pulse" id="serverDot"></span>
+                <span id="serverStatus">Memuat...</span>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="page-content" id="main-content" tabindex="-1">
+
+            <!-- ── Dashboard ── -->
+            <section class="page-section active" id="page-dashboard">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <p>Ringkasan status regulasi dan hasil analisis AI</p>
+                </div>
+
+                <div class="disclaimer-banner">
+                    <span>⚠️</span>
+                    <div>
+                        <strong>TINJAUAN AWAL AI — WAJIB VERIFIKASI MANUSIA.</strong>
+                        AI adalah co-pilot ASN, bukan pengambil keputusan hukum. Semua temuan wajib diverifikasi oleh analis hukum yang berwenang.
+                    </div>
+                </div>
+
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-value" id="statRegulasi">—</div>
+                        <div class="stat-label">Total Regulasi</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📄</div>
+                        <div class="stat-value" id="statRaperbup">—</div>
+                        <div class="stat-label">Raperbup</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value" id="statSelesai">—</div>
+                        <div class="stat-label">Telaah Selesai</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon">🔄</div>
+                        <div class="stat-value" id="statReview">—</div>
+                        <div class="stat-label">Perlu Review</div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-value" id="statKonflik">—</div>
+                        <div class="stat-label">Potensi Konflik</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon">🔀</div>
+                        <div class="stat-value" id="statInkonsisten">—</div>
+                        <div class="stat-label">Ketidakkonsistenan</div>
+                    </div>
+                </div>
+
+                <!-- AI Provider Status -->
+                <div class="card">
+                    <div class="card-title">🤖 Status AI Provider</div>
+                    <div class="provider-grid" id="providerGrid">
+                        <div class="provider-card">
+                            <div class="provider-name">Ollama</div>
+                            <div class="provider-status">
+                                <span class="dot dot-yellow"></span> Memeriksa...
+                            </div>
+                        </div>
+                        <div class="provider-card">
+                            <div class="provider-name">LM Studio</div>
+                            <div class="provider-status">
+                                <span class="dot dot-yellow"></span> Memeriksa...
+                            </div>
+                        </div>
+                        <div class="provider-card">
+                            <div class="provider-name">Mock Provider</div>
+                            <div class="provider-status">
+                                <span class="dot dot-green"></span> Tersedia (Testing)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Chatbot ── -->
+            <section class="page-section" id="page-chatbot">
+                <div class="page-header">
+                    <h1>💬 Tanya Regulasi</h1>
+                    <p>Tanyakan apa saja tentang regulasi. AI akan menjawab berdasarkan database yang tersedia.</p>
+                </div>
+
+                <div class="disclaimer-banner">
+                    <span>⚠️</span>
+                    <div>
+                        <strong>TINJAUAN AWAL AI — WAJIB VERIFIKASI MANUSIA.</strong>
+                        Jawaban AI berdasarkan dokumen di database. Jika dokumen belum ada, jawaban mungkin tidak tersedia. Selalu cantumkan sumber dalam produk hukum resmi.
+                    </div>
+                </div>
+
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-msg assistant">
+                            <span class="disclaimer-tag">⚠️ TINJAUAN AWAL AI — WAJIB VERIFIKASI MANUSIA</span>
+                            Selamat datang di <strong>Tanya Regulasi</strong>. Saya siap membantu Anda mencari informasi tentang regulasi yang tersedia di database. Ketik pertanyaan Anda di bawah.
+                        </div>
+                    </div>
+                    <div class="chat-input-row">
+                        <input type="text" class="chat-input" id="chatInput"
+                               placeholder="Contoh: Apa dasar hukum pengelolaan keuangan daerah?"
+                               onkeypress="if(event.key==='Enter') sendChat()">
+                        <button class="btn btn-primary" onclick="sendChat()" id="sendBtn">
+                            Kirim
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── AI & Model ── -->
+            <section class="page-section" id="page-ai-model">
+                <div class="page-header">
+                    <h1>🤖 AI &amp; Model</h1>
+                    <p>Konfigurasi provider AI dan model yang digunakan</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔒 Mode Privasi AI</div>
+                    <div style="padding:0.5rem 0; font-size:0.9rem;">
+                        <span class="dot dot-green"></span>
+                        <strong>LOCAL ONLY</strong> — Dokumen tidak dikirim ke cloud tanpa izin eksplisit.
+                    </div>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;">
+                        Untuk mengubah mode privasi, edit file <code>.env</code> pada parameter <code>DEFAULT_AI_MODE</code>.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📡 Status Provider</div>
+                    <div id="aiProviderDetail">
+                        <p style="color:var(--text-muted); font-size:0.875rem;">Memuat status provider...</p>
+                    </div>
+                    <div style="margin-top:1rem;">
+                        <button class="btn btn-secondary btn-sm" onclick="loadProviders()">🔄 Refresh Status</button>
+                        <a href="/docs#/AI%20%26%20Model" target="_blank" class="btn btn-secondary btn-sm">📖 API Docs</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">⚙️ Konfigurasi Model per Task</div>
+                    <p style="font-size:0.8rem; color:var(--text-muted);">
+                        Konfigurasi model dapat dilakukan via endpoint <code>PUT /api/ai/task-config</code>.<br>
+                        Gunakan API docs untuk mengatur model per task (chat, legal_basis, conflict, dll.)
+                    </p>
+                </div>
+            </section>
+
+            <!-- ── Panduan Singkat ── -->
+            <section class="page-section" id="page-pengaturan">
+                <div class="page-header">
+                    <h1>⚙️ Pengaturan &amp; Panduan</h1>
+                    <p>Panduan penggunaan dan konfigurasi TALAS AI</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🚀 Mulai Cepat</div>
+                    <div class="quickstart-steps">
+                        <div class="step">
+                            <div class="step-num">1</div>
+                            <div class="step-content">
+                                <h4>Install Ollama</h4>
+                                <p>Download dari <a href="https://ollama.ai" target="_blank">ollama.ai</a>, lalu jalankan: <code>ollama pull llama3.2:3b</code></p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">2</div>
+                            <div class="step-content">
+                                <h4>Upload Regulasi</h4>
+                                <p>Tambah regulasi melalui <code>POST /api/regulations</code>, lalu upload PDF via <code>POST /api/documents/upload</code></p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">3</div>
+                            <div class="step-content">
+                                <h4>Proses Dokumen</h4>
+                                <p>Ekstrak teks PDF via <code>POST /api/documents/{id}/process</code> — sistem akan otomatis membangun index pencarian</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">4</div>
+                            <div class="step-content">
+                                <h4>Jalankan Telaah AI</h4>
+                                <p>Mulai analisis via <code>POST /api/analysis</code> dengan tipe LEGAL_BASIS, CONFLICT, CONSISTENCY, atau FULL</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-num">5</div>
+                            <div class="step-content">
+                                <h4>Review &amp; Verifikasi</h4>
+                                <p>Review temuan AI via <code>POST /api/findings/{id}/review</code> dengan aksi TERIMA/TOLAK/EDIT/VERIFIKASI</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔗 API Endpoints Utama</div>
+                    <div class="endpoint-list">
+                        <div class="endpoint-item"><span class="method method-post">POST</span><span class="endpoint-path">/api/auth/login</span><span class="endpoint-desc">Login pengguna</span></div>
+                        <div class="endpoint-item"><span class="method method-get">GET</span><span class="endpoint-path">/api/regulations</span><span class="endpoint-desc">Daftar regulasi</span></div>
+                        <div class="endpoint-item"><span class="method method-post">POST</span><span class="endpoint-path">/api/documents/upload</span><span class="endpoint-desc">Upload PDF</span></div>
+                        <div class="endpoint-item"><span class="method method-post">POST</span><span class="endpoint-path">/api/documents/{id}/process</span><span class="endpoint-desc">Proses ekstraksi</span></div>
+                        <div class="endpoint-item"><span class="method method-post">POST</span><span class="endpoint-path">/api/analysis</span><span class="endpoint-desc">Mulai telaah AI</span></div>
+                        <div class="endpoint-item"><span class="method method-post">POST</span><span class="endpoint-path">/api/chat</span><span class="endpoint-desc">Tanya regulasi (RAG)</span></div>
+                        <div class="endpoint-item"><span class="method method-post">POST</span><span class="endpoint-path">/api/findings/{id}/review</span><span class="endpoint-desc">Review temuan</span></div>
+                        <div class="endpoint-item"><span class="method method-post">POST</span><span class="endpoint-path">/api/reports/generate</span><span class="endpoint-desc">Generate laporan</span></div>
+                        <div class="endpoint-item"><span class="method method-get">GET</span><span class="endpoint-path">/api/dashboard/stats</span><span class="endpoint-desc">Statistik</span></div>
+                        <div class="endpoint-item"><span class="method method-post">POST</span><span class="endpoint-path">/api/backup</span><span class="endpoint-desc">Backup database</span></div>
+                    </div>
+                    <div style="margin-top:1rem;">
+                        <a href="/docs" target="_blank" class="btn btn-primary btn-sm">📖 Buka API Documentation</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Placeholder pages ── -->
+            <section class="page-section" id="page-regulations">
+                <div class="page-header"><h1>📚 Regulasi</h1><p>Kelola perpustakaan regulasi</p></div>
+                <div class="card">
+                    <p style="color:var(--text-muted); font-size:0.875rem;">Gunakan API <a href="/docs#/Regulasi" target="_blank"><code>GET/POST /api/regulations</code></a> untuk mengelola regulasi, atau gunakan aplikasi client yang terhubung ke TALAS AI API.</p>
+                    <div style="margin-top:1rem;"><a href="/docs#/Regulasi" target="_blank" class="btn btn-primary btn-sm">📖 Lihat API Docs</a></div>
+                </div>
+            </section>
+
+            <section class="page-section" id="page-raperbup">
+                <div class="page-header"><h1>📄 Raperbup</h1><p>Rancangan Peraturan Bupati yang sedang ditelaah</p></div>
+                <div class="card">
+                    <p style="color:var(--text-muted); font-size:0.875rem;">Filter regulasi dengan <code>is_draft=true</code> via <code>GET /api/regulations?is_draft=true</code></p>
+                    <div style="margin-top:1rem;"><a href="/docs#/Regulasi" target="_blank" class="btn btn-primary btn-sm">📖 Lihat API Docs</a></div>
+                </div>
+            </section>
+
+            <section class="page-section" id="page-telaah">
+                <div class="page-header"><h1>🔍 Telaah AI</h1><p>Mulai analisis regulasi dengan AI</p></div>
+                <div class="disclaimer-banner"><span>⚠️</span><div><strong>TINJAUAN AWAL AI — WAJIB VERIFIKASI MANUSIA.</strong> Status analisis hanya FOUND/NOT_FOUND/NEEDS_REVIEW, bukan LEGAL/ILEGAL.</div></div>
+                <div class="card">
+                    <p style="color:var(--text-muted); font-size:0.875rem;">Gunakan <code>POST /api/analysis</code> dengan body <code>{"regulation_id": X, "analysis_type": "FULL"}</code></p>
+                    <div style="margin-top:1rem;"><a href="/docs#/analysis" target="_blank" class="btn btn-primary btn-sm">📖 Lihat API Docs</a></div>
+                </div>
+            </section>
+
+            <section class="page-section" id="page-perbandingan">
+                <div class="page-header"><h1>⚖️ Perbandingan</h1><p>Bandingkan dua regulasi pasal per pasal</p></div>
+                <div class="card">
+                    <p style="color:var(--text-muted); font-size:0.875rem;">Gunakan <code>POST /api/analysis/compare</code> dengan body <code>{"regulation_id_a": X, "regulation_id_b": Y}</code></p>
+                    <div style="margin-top:1rem;"><a href="/docs#/analysis" target="_blank" class="btn btn-primary btn-sm">📖 Lihat API Docs</a></div>
+                </div>
+            </section>
+
+            <section class="page-section" id="page-review">
+                <div class="page-header"><h1>✅ Review Temuan</h1><p>Verifikasi dan tinjau temuan AI</p></div>
+                <div class="card">
+                    <p style="color:var(--text-muted); font-size:0.875rem;">Gunakan <code>POST /api/findings/{id}/review</code> dengan aksi TERIMA/TOLAK/EDIT/KOMENTAR/VERIFIKASI</p>
+                    <div style="margin-top:1rem;"><a href="/docs#/analysis" target="_blank" class="btn btn-primary btn-sm">📖 Lihat API Docs</a></div>
+                </div>
+            </section>
+
+            <section class="page-section" id="page-laporan">
+                <div class="page-header"><h1>📋 Laporan</h1><p>Generate dan download laporan telaah regulasi</p></div>
+                <div class="card">
+                    <p style="color:var(--text-muted); font-size:0.875rem;">Gunakan <code>POST /api/reports/generate</code> dengan body <code>{"analysis_id": X, "format": "docx"}</code></p>
+                    <div style="margin-top:1rem;"><a href="/docs#/Laporan" target="_blank" class="btn btn-primary btn-sm">📖 Lihat API Docs</a></div>
+                </div>
+            </section>
+
+            <section class="page-section" id="page-audit">
+                <div class="page-header"><h1>📝 Audit Log</h1><p>Riwayat semua aksi pengguna dan sistem</p></div>
+                <div class="card">
+                    <p style="color:var(--text-muted); font-size:0.875rem;">Gunakan <code>GET /api/audit-logs</code> (memerlukan hak akses admin)</p>
+                    <div style="margin-top:1rem;"><a href="/docs#/admin" target="_blank" class="btn btn-primary btn-sm">📖 Lihat API Docs</a></div>
+                </div>
+            </section>
+
+        </main>
     </div>
+</div>
 
-    <script>
-        // Auto-refresh status setiap 30 detik
-        async function checkHealth() {
-            try {
-                const res = await fetch('/api/health');
-                const data = await res.json();
-                const dbStatus = document.querySelector('.badge-green');
-                if (data.status === 'healthy' && dbStatus) {
-                    dbStatus.textContent = '✓ Berjalan';
-                }
-            } catch (e) {
-                // Silent fail — server mungkin sedang restart
-            }
-        }
-        setInterval(checkHealth, 30000);
+<script>
+'use strict';
 
-        // Register Service Worker untuk PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/static/js/service-worker.js')
-                    .then(function(registration) {
-                        console.log('TALAS AI SW registered:', registration.scope);
-                    })
-                    .catch(function(err) {
-                        // SW registration non-fatal
-                        console.log('SW registration failed (non-fatal):', err);
-                    });
-            });
+// ── Navigation ────────────────────────────────────────────────────
+
+function showPage(pageId, navEl) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const page = document.getElementById('page-' + pageId);
+    if (page) page.classList.add('active');
+    if (navEl) navEl.classList.add('active');
+    const titles = {
+        'dashboard': 'Dashboard',
+        'regulations': 'Regulasi',
+        'raperbup': 'Raperbup',
+        'telaah': 'Telaah AI',
+        'chatbot': 'Tanya Regulasi',
+        'perbandingan': 'Perbandingan',
+        'review': 'Review',
+        'laporan': 'Laporan',
+        'ai-model': 'AI & Model',
+        'audit': 'Audit Log',
+        'pengaturan': 'Pengaturan',
+    };
+    document.getElementById('topbarTitle').textContent = titles[pageId] || pageId;
+    closeSidebar();
+}
+
+function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    const o = document.getElementById('sidebarOverlay');
+    s.classList.toggle('open');
+    o.classList.toggle('active');
+}
+
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+// ── API helpers ───────────────────────────────────────────────────
+
+let _token = null;
+
+async function apiGet(path) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (_token) headers['Authorization'] = 'Bearer ' + _token;
+    const r = await fetch(path, { headers });
+    return r.json();
+}
+
+async function apiPost(path, body) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (_token) headers['Authorization'] = 'Bearer ' + _token;
+    const r = await fetch(path, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+    });
+    return r.json();
+}
+
+// ── Health check ──────────────────────────────────────────────────
+
+async function checkHealth() {
+    try {
+        const data = await apiGet('/api/health');
+        const dot = document.getElementById('serverDot');
+        const label = document.getElementById('serverStatus');
+        if (data.status === 'healthy') {
+            dot.className = 'dot dot-green';
+            label.textContent = 'Server OK';
+        } else {
+            dot.className = 'dot dot-yellow';
+            label.textContent = 'Degraded';
         }
-    </script>
+    } catch {
+        document.getElementById('serverDot').className = 'dot dot-red';
+        document.getElementById('serverStatus').textContent = 'Offline';
+    }
+}
+
+// ── Dashboard stats ───────────────────────────────────────────────
+
+async function loadDashboardStats() {
+    try {
+        const data = await apiGet('/api/dashboard/stats');
+        document.getElementById('statRegulasi').textContent = data.total_regulasi ?? '—';
+        document.getElementById('statRaperbup').textContent = data.total_raperbup ?? '—';
+        document.getElementById('statSelesai').textContent = data.telaah_selesai ?? '—';
+        document.getElementById('statReview').textContent = data.perlu_review ?? '—';
+        document.getElementById('statKonflik').textContent = data.potensi_konflik ?? '—';
+        document.getElementById('statInkonsisten').textContent = data.ketidakkonsistenan ?? '—';
+        // Update review badge
+        const badge = document.getElementById('reviewBadge');
+        if (badge) badge.textContent = data.perlu_review || '0';
+    } catch {
+        // Silent fail — stats will show —
+    }
+}
+
+// ── AI Providers ──────────────────────────────────────────────────
+
+async function loadProviders() {
+    try {
+        const data = await apiGet('/api/ai/providers');
+        if (!Array.isArray(data)) return;
+        const grid = document.getElementById('aiProviderDetail');
+        if (!grid) return;
+        const html = data.map(p => {
+            const dotCls = p.status === 'connected' ? 'dot-green' : p.status === 'disconnected' ? 'dot-red' : 'dot-yellow';
+            const badge = p.is_cloud ? '<span style="font-size:0.65rem;background:#fee2e2;color:#991b1b;padding:0.1rem 0.4rem;border-radius:10px;margin-left:4px;">Cloud</span>' : '';
+            return `<div class="provider-card">
+                <div class="provider-name">${p.name}${badge}</div>
+                <div class="provider-status"><span class="dot ${dotCls}"></span>${p.message || p.status}</div>
+                ${p.models_available ? `<div style="font-size:0.72rem;color:var(--text-muted)">${p.models_available} model tersedia</div>` : ''}
+            </div>`;
+        }).join('');
+        grid.innerHTML = `<div class="provider-grid">${html}</div>`;
+
+        // Update dashboard provider grid too
+        const dashGrid = document.getElementById('providerGrid');
+        if (dashGrid) dashGrid.innerHTML = html;
+    } catch {
+        // Silent fail
+    }
+}
+
+// ── Chatbot ───────────────────────────────────────────────────────
+
+let chatSessionId = null;
+
+async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const msg = (input.value || '').trim();
+    if (!msg) return;
+
+    input.value = '';
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    appendChatMsg(msg, 'user');
+
+    try {
+        const data = await apiPost('/api/chat', {
+            message: msg,
+            session_id: chatSessionId,
+        });
+        chatSessionId = data.session_id || chatSessionId;
+        const answer = data.answer || 'Tidak ada respons dari AI.';
+        const sources = data.sources || [];
+        let sourceText = '';
+        if (sources.length > 0) {
+            sourceText = '\n\n📎 Sumber:\n' + sources.map((s, i) =>
+                `[${i+1}] ${[s.regulation, s.nomor ? 'No.'+s.nomor : null, s.tahun, s.pasal].filter(Boolean).join(' ')}`
+            ).join('\n');
+        }
+        appendChatMsg(answer + sourceText, 'assistant');
+    } catch (e) {
+        appendChatMsg('Terjadi kesalahan. Pastikan Anda sudah login dan server berjalan.', 'assistant');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Kirim';
+    }
+}
+
+function appendChatMsg(text, role) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    if (role === 'assistant') {
+        const disclaimer = document.createElement('span');
+        disclaimer.className = 'disclaimer-tag';
+        disclaimer.textContent = '⚠️ TINJAUAN AWAL AI — WAJIB VERIFIKASI MANUSIA';
+        div.appendChild(disclaimer);
+    }
+    const content = document.createElement('div');
+    content.style.whiteSpace = 'pre-wrap';
+    content.textContent = text;
+    div.appendChild(content);
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+// ── PWA Service Worker ────────────────────────────────────────────
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/js/service-worker.js')
+            .then(reg => console.log('TALAS AI SW registered:', reg.scope))
+            .catch(() => {}); // Non-fatal
+    });
+}
+
+// ── Init ──────────────────────────────────────────────────────────
+
+async function init() {
+    await checkHealth();
+    await loadDashboardStats();
+    await loadProviders();
+}
+
+// Refresh setiap 60 detik
+setInterval(async () => {
+    await checkHealth();
+    await loadDashboardStats();
+}, 60000);
+
+init();
+</script>
 </body>
 </html>

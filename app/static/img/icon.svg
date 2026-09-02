@@ -1,0 +1,7 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="24" fill="#1a4a7a"/>
+  <text x="50%" y="55%" text-anchor="middle" dominant-baseline="middle" 
+        font-family="Arial,sans-serif" font-size="80" fill="white">⚖️</text>
+  <text x="50%" y="82%" text-anchor="middle" dominant-baseline="middle"
+        font-family="Arial,sans-serif" font-size="22" font-weight="bold" fill="white">TALAS</text>
+</svg>

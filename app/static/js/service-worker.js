@@ -11,6 +11,8 @@ const CACHE_NAME = 'talas-ai-v1';
 const STATIC_ASSETS = [
   '/',
   '/static/manifest.json',
+  '/static/css/main.css',
+  '/static/js/app.js',
 ];
 
 // Install event — cache static assets
