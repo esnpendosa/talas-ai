@@ -55,6 +55,11 @@ from app.api.regulations.router import router as regulations_router
 from app.api.documents.router import router as documents_router
 from app.api.ai.router import router as ai_router_endpoint
 from app.api.chat.router import router as chat_router
+from app.api.analysis.router import router as analysis_router
+from app.api.reports.router import router as reports_router
+from app.api.dashboard.router import router as dashboard_router
+from app.api.admin.audit import router as audit_router
+from app.api.admin.backup import router as backup_router
 
 
 # ------------------------------------------------------------------ #
@@ -265,16 +270,11 @@ app.include_router(regulations_router, prefix="/api")
 app.include_router(documents_router, prefix="/api")
 app.include_router(ai_router_endpoint, prefix="/api")
 app.include_router(chat_router, prefix="/api")
-
-# Placeholder routers (akan diisi di phase selanjutnya)
-# app.include_router(regulations_router, prefix="/api/regulations")
-# app.include_router(regulations_router, prefix="/api/regulations")
-# app.include_router(documents_router, prefix="/api/documents")
-# app.include_router(analysis_router, prefix="/api/analysis")
-# app.include_router(chat_router, prefix="/api/chat")
-# app.include_router(reports_router, prefix="/api/reports")
-# app.include_router(ai_router_endpoint, prefix="/api/ai")
-# app.include_router(admin_router, prefix="/api/admin")
+app.include_router(analysis_router, prefix="/api")
+app.include_router(reports_router, prefix="/api")
+app.include_router(dashboard_router, prefix="/api")
+app.include_router(audit_router, prefix="/api")
+app.include_router(backup_router, prefix="/api")
 
 
 # ------------------------------------------------------------------ #

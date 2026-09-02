@@ -1,0 +1,17 @@
+{
+  "name": "TALAS AI",
+  "short_name": "TALAS AI",
+  "description": "Telaah Regulasi Berbasis Artificial Intelligence",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#1a4a7a",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "/static/img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,372 +1,374 @@
 # TALAS AI
-## Telaah Regulasi Berbasis Artificial Intelligence
 
-> **"AI sebagai Co-Pilot ASN untuk Telaah Regulasi"**
+**Telaah Regulasi Berbasis Artificial Intelligence**
 
----
-
-### ⚠️ DISCLAIMER PENTING
-
-**TINJAUAN AWAL AI — WAJIB VERIFIKASI MANUSIA.**
-
-TALAS AI adalah alat bantu telaah awal untuk ASN pemerintah daerah. AI bukan pengambil keputusan hukum dan bukan pengganti analis hukum. Semua output AI wajib diverifikasi oleh analis hukum yang berwenang.
+> ⚠️ **TINJAUAN AWAL AI — WAJIB VERIFIKASI MANUSIA.**
+> AI adalah co-pilot ASN, bukan pengambil keputusan hukum. Semua output AI wajib diverifikasi oleh analis hukum yang berwenang.
 
 ---
 
-## Daftar Isi
+## Gambaran Umum
 
-1. [Apa itu TALAS AI](#apa-itu-talas-ai)
-2. [Requirements](#requirements)
-3. [Instalasi](#instalasi)
-4. [Konfigurasi](#konfigurasi)
-5. [Konfigurasi AI](#konfigurasi-ai)
-6. [Menjalankan Aplikasi](#menjalankan-aplikasi)
-7. [Akses Web](#akses-web)
-8. [Akses dari Android](#akses-dari-android)
-9. [Backup & Restore](#backup--restore)
-10. [Testing](#testing)
-11. [Keamanan](#keamanan)
-12. [Keterbatasan](#keterbatasan)
+TALAS AI adalah aplikasi telaah regulasi berbasis AI untuk membantu ASN pemerintah daerah dalam:
 
----
+- Memeriksa dasar hukum Raperbup
+- Menemukan potensi konflik dengan regulasi yang lebih tinggi
+- Memeriksa konsistensi internal dokumen
+- Membandingkan dua regulasi pasal per pasal
+- Menghasilkan laporan telaah dalam format DOCX, PDF, atau JSON
+- Mendukung human review atas temuan AI
 
-## Apa itu TALAS AI
+**Stack:** FastAPI + SQLite + SQLAlchemy (async) + Python 3.11+
 
-TALAS AI (Telaah Regulasi Berbasis Artificial Intelligence) adalah aplikasi yang membantu ASN pemerintah daerah melakukan telaah awal terhadap rancangan Peraturan Bupati dan regulasi lainnya.
+**AI:** Local-first — Ollama, LM Studio, atau Mock (offline). Cloud AI opsional.
 
-### Fitur Utama
-
-- **Perpustakaan Regulasi** — Kelola UU, PP, Perpres, Permen, Permendagri, Perda, Pergub, Perbup
-- **Telaah AI** — Analisis dasar hukum, konflik, dan konsistensi regulasi
-- **Chatbot Regulasi** — Tanya jawab tentang regulasi dengan sumber yang terverifikasi
-- **Perbandingan Dokumen** — Bandingkan Raperbup dengan regulasi yang berlaku
-- **Human Review** — Review dan verifikasi temuan AI oleh analis hukum
-- **Laporan Otomatis** — Generate laporan DOCX/PDF telaah regulasi
-- **Multi AI Provider** — Ollama, LM Studio, llama.cpp, Cloud (opsional)
-- **Privacy First** — Default LOCAL ONLY, dokumen tidak dikirim ke cloud
+**Privacy:** Default `LOCAL ONLY` — tidak ada data dikirim ke cloud tanpa izin eksplisit.
 
 ---
 
-## Requirements
+## Fase yang Sudah Diimplementasi
 
-### Minimum
-- **OS**: Windows 10/11 (64-bit)
-- **Python**: 3.12 atau lebih baru
-- **RAM**: 8 GB (16 GB direkomendasikan untuk local AI)
-- **Storage**: 2 GB untuk aplikasi + ruang untuk dokumen
-
-### Untuk Local AI (Direkomendasikan)
-- **Ollama** atau **LM Studio** — untuk inferensi AI lokal
-- **RAM**: 16 GB+ untuk model menengah
-- **VRAM**: opsional, mempercepat inferensi
+| Fase | Deskripsi |
+|------|-----------|
+| 1 | Foundation (config, database, logging) |
+| 2 | Authentication & RBAC |
+| 3 | Regulatory Library |
+| 4 | Document Processing (PDF, DOCX) |
+| 5 | Search Engine (FTS5) |
+| 6 | Multi-AI Provider (Ollama, LM Studio, OpenAI-compatible, Mock) |
+| 7 | RAG Engine (Retrieval-Augmented Generation) |
+| 8 | Chatbot API |
+| 9 | Legal Basis Checker |
+| 10 | Conflict Checker |
+| 11 | Consistency Checker |
+| 12 | Comparison Engine |
+| 13 | Human Review |
+| 14 | Report Generator |
+| 15 | Dashboard |
+| 16 | Security / Audit / Backup |
+| 17 | PWA (Progressive Web App) |
+| 18 | Windows Desktop Launcher |
+| 19 | Test Suite Lengkap |
+| 20 | Dokumentasi Final |
 
 ---
 
 ## Instalasi
 
-### 1. Clone atau Download Project
+### Prasyarat
+
+- Python 3.11+
+- (Opsional) Ollama dengan model LLM
+
+### Setup
 
 ```bash
-# Clone repository
-git clone https://github.com/pemda/talas-ai.git
-cd talas-ai
-```
+# Clone repo
+git clone https://github.com/esnpendosa/talas-ai.git
+cd "talas-ai"
 
-Atau extract ZIP ke folder pilihan Anda.
-
-### 2. Install Python
-
-Download Python 3.12+ dari https://python.org
-
-Pastikan centang **"Add Python to PATH"** saat instalasi.
-
-Verifikasi:
-```bash
-python --version
-```
-
-### 3. Buat Virtual Environment
-
-```bash
+# Buat virtual environment
 python -m venv venv
-```
 
-### 4. Aktifkan Virtual Environment
+# Aktifkan venv
+# Windows:
+venv\Scripts\activate
+# Linux/Mac:
+source venv/bin/activate
 
-**Windows CMD:**
-```bash
-venv\Scripts\activate.bat
-```
-
-**Windows PowerShell:**
-```bash
-venv\Scripts\Activate.ps1
-```
-
-### 5. Install Dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Copy dan konfigurasi environment
+cp .env.example .env
+# Edit .env sesuai kebutuhan (minimal: SECRET_KEY)
 ```
 
-### 6. Konfigurasi .env
+### Jalankan Server
 
 ```bash
-copy .env.example .env
+# Development
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+# Production
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
 ```
 
-Edit `.env` sesuai kebutuhan. Minimal ganti `SECRET_KEY`:
+Akses: http://localhost:8000
 
-```
-SECRET_KEY=your-very-long-random-secret-key-here
-```
+API Docs (development only): http://localhost:8000/docs
 
-### 7. Inisialisasi Database
-
-Database akan dibuat otomatis saat pertama kali menjalankan aplikasi.
-
-Atau jalankan seed manual:
+### Desktop Launcher (Windows)
 
 ```bash
-python scripts/seed.py
+# Pure Python launcher (tanpa GUI)
+python desktop/launcher.py
+
+# Dengan GUI PySide6 (jika terinstall)
+python desktop/main.py
 ```
+
+---
+
+## API Endpoints
+
+### Auth
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/auth/login` | Login |
+| POST | `/api/auth/logout` | Logout |
+| GET | `/api/auth/me` | Data user saat ini |
+| POST | `/api/auth/change-password` | Ganti password |
+
+### Regulasi
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/regulations` | Daftar regulasi |
+| POST | `/api/regulations` | Tambah regulasi |
+| GET | `/api/regulations/{id}` | Detail regulasi |
+| PUT | `/api/regulations/{id}` | Update regulasi |
+| DELETE | `/api/regulations/{id}` | Hapus regulasi |
+
+### Dokumen
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/documents/upload` | Upload dokumen (PDF/DOCX) |
+| GET | `/api/documents` | Daftar dokumen |
+| DELETE | `/api/documents/{id}` | Hapus dokumen |
+
+### Analisis (Phase 9-13)
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/analysis` | Mulai analisis (LEGAL_BASIS/CONFLICT/CONSISTENCY/FULL) |
+| GET | `/api/analysis/{id}` | Status analisis |
+| GET | `/api/analysis/{id}/findings` | Daftar temuan |
+| POST | `/api/analysis/compare` | Bandingkan dua regulasi |
+| POST | `/api/findings/{id}/review` | Human review (TERIMA/TOLAK/EDIT/KOMENTAR/VERIFIKASI) |
+
+### Chat (Phase 8)
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/chat` | Tanya tentang regulasi |
+| GET | `/api/chat/sessions` | Daftar sesi chat |
+| GET | `/api/chat/sessions/{id}/messages` | Riwayat pesan |
+
+### Laporan (Phase 14)
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| POST | `/api/reports/generate` | Generate laporan (docx/pdf/json) |
+| GET | `/api/reports/{id}/download` | Download laporan |
+| GET | `/api/reports` | Daftar laporan |
+
+### Dashboard (Phase 15)
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/dashboard/stats` | Statistik dashboard |
+
+### Admin (Phase 16)
+| Method | Endpoint | Deskripsi |
+|--------|----------|-----------|
+| GET | `/api/audit-logs` | Daftar audit log (admin) |
+| POST | `/api/backup` | Buat backup database (admin) |
+| GET | `/api/backup/list` | Daftar backup (admin) |
+| POST | `/api/restore` | Restore database (admin) |
+
+---
+
+## Status Analisis
+
+Sistem menggunakan status berikut (tidak ada LEGAL/ILLEGAL):
+
+| Status | Keterangan |
+|--------|-----------|
+| `FOUND` | Dasar hukum ditemukan |
+| `NOT_FOUND` | Dasar hukum tidak ditemukan |
+| `NEEDS_REVIEW` | Perlu verifikasi lebih lanjut |
+| `NO_ISSUE` | Tidak ada masalah |
+| `DIFFERENCE` | Ada perbedaan yang perlu dicermati |
+| `POTENTIAL_CONFLICT` | Berpotensi konflik (bukan "bertentangan" secara absolut) |
+
+---
+
+## Human Review
+
+Reviewer dapat melakukan aksi berikut terhadap temuan AI:
+
+| Aksi | Efek |
+|------|------|
+| `TERIMA` | Set review_status = VERIFIED |
+| `TOLAK` | Set review_status = REJECTED |
+| `EDIT` | Update teks finding, set REVISED |
+| `KOMENTAR` | Tambah catatan, set UNDER_REVIEW |
+| `VERIFIKASI` | Set review_status = VERIFIED (aksi formal) |
+
+Temuan yang sudah VERIFIED tidak dapat diubah oleh non-superuser.
+
+---
+
+## Struktur Laporan
+
+Setiap laporan telaah mengikuti struktur:
+
+```
+I. IDENTITAS
+II. LATAR BELAKANG
+III. DASAR HUKUM
+IV. MATERI MUATAN
+V. HASIL ANALISIS
+VI. POTENSI PERMASALAHAN
+VII. REKOMENDASI
+VIII. KESIMPULAN
+```
+
+Disclaimer wajib: **"TINJAUAN AWAL AI — WAJIB VERIFIKASI MANUSIA."**
 
 ---
 
 ## Konfigurasi AI
 
-### Menggunakan Ollama (Direkomendasikan)
+Edit `.env` untuk mengkonfigurasi AI:
 
-1. Download Ollama dari https://ollama.ai
-2. Install dan jalankan Ollama
-3. Pull model pilihan:
+```ini
+# Privacy mode
+DEFAULT_AI_MODE=local_only  # local_only | cloud_allowed | ask_before_sending
 
-```bash
-# Model ringan (4-8 GB RAM)
-ollama pull llama3.2:3b
-ollama pull qwen2.5:3b
-
-# Model menengah (8-16 GB RAM)
-ollama pull llama3.2:8b
-ollama pull qwen2.5:7b
-
-# Model besar (16+ GB RAM)
-ollama pull llama3.1:70b
-```
-
-4. Pastikan `.env` memiliki:
-```
-OLLAMA_BASE_URL=http://localhost:11434
+# Ollama (local)
 OLLAMA_ENABLED=true
-```
+OLLAMA_BASE_URL=http://localhost:11434
 
-### Menggunakan LM Studio
-
-1. Download LM Studio dari https://lmstudio.ai
-2. Download model dari UI LM Studio
-3. Aktifkan Local Server di LM Studio
-4. Edit `.env`:
-```
+# LM Studio (local)
+LMSTUDIO_ENABLED=false
 LMSTUDIO_BASE_URL=http://localhost:1234
-LMSTUDIO_ENABLED=true
+
+# Cloud AI (opsional, hanya jika mode != local_only)
+CLOUD_AI_ENABLED=false
+OPENAI_API_KEY=
 ```
-
-### Mode Privacy
-
-```
-# Hanya AI lokal (default — direkomendasikan)
-DEFAULT_AI_MODE=local_only
-
-# Izinkan cloud AI (akan minta konfirmasi setiap kali)
-DEFAULT_AI_MODE=ask_before_sending
-
-# Izinkan cloud AI tanpa konfirmasi (tidak direkomendasikan)
-DEFAULT_AI_MODE=cloud_allowed
-```
-
----
-
-## Menjalankan Aplikasi
-
-### Development
-
-```bash
-python run.py
-```
-
-Atau dengan opsi:
-
-```bash
-python run.py --host 127.0.0.1 --port 8000 --reload
-```
-
-### Production
-
-```bash
-python run.py --workers 4 --host 0.0.0.0 --port 8000
-```
-
----
-
-## Akses Web
-
-Setelah aplikasi berjalan:
-
-- **Aplikasi**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs (development only)
-- **Health Check**: http://localhost:8000/api/health
-
-### Login Default
-
-```
-Username: admin
-Password: TalasAI@2024!
-```
-
-**⚠️ WAJIB ganti password segera setelah login pertama!**
-
----
-
-## Akses dari Android
-
-TALAS AI mendukung PWA (Progressive Web App) yang dapat diakses dari browser Android.
-
-1. Buka browser Chrome/Edge di perangkat Android
-2. Akses: `http://[IP-SERVER]:8000`
-3. Tap **"Add to Home Screen"** untuk install sebagai app
-
-Pastikan server dapat diakses dari jaringan yang sama (WiFi/LAN).
 
 ---
 
 ## Backup & Restore
 
-### Buat Backup
-
 ```bash
-# Via API
-POST /api/backup
-
-# Atau via script
+# Buat backup via script
 python scripts/backup.py
+
+# Daftar backup
+python scripts/backup.py --list
+
+# Restore (memerlukan konfirmasi)
+python scripts/backup.py --restore data/backups/backup_2025-01-01_00-00-00.db --confirm
 ```
 
-File backup tersimpan di: `data/backups/backup_YYYY-MM-DD_HH-MM-SS.db`
-
-### Restore
-
+Atau via API (admin only):
 ```bash
-# Via API
-POST /api/restore
+# Buat backup
+POST /api/backup
 
-# Atau via script
-python scripts/restore.py --file data/backups/backup_2026-01-01_12-00-00.db
+# Daftar backup
+GET /api/backup/list
+
+# Restore
+POST /api/restore
+{
+  "backup_path": "data/backups/backup_2025-01-01_00-00-00.db",
+  "confirmed": true,
+  "confirmation_text": "SAYA KONFIRMASI RESTORE DATABASE"
+}
 ```
 
 ---
 
 ## Testing
 
-### Jalankan Semua Test
-
 ```bash
-pytest
-```
+# Jalankan semua test
+venv\Scripts\pytest tests/ -q
 
-### Dengan Coverage Report
-
-```bash
-pytest --cov=app --cov-report=html
-```
-
-### Test Spesifik
-
-```bash
-pytest tests/test_database.py
-pytest tests/test_health.py
-pytest tests/test_config.py
+# Test spesifik
+venv\Scripts\pytest tests/test_analysis.py -v
+venv\Scripts\pytest tests/test_review.py -v
+venv\Scripts\pytest tests/test_reports.py -v
+venv\Scripts\pytest tests/test_backup.py -v
+venv\Scripts\pytest tests/test_dashboard.py -v
+venv\Scripts\pytest tests/test_security.py -v
 ```
 
 ---
 
-## Keamanan
+## Prinsip Keamanan
 
-### Password Policy
-- Password di-hash menggunakan Argon2
-- Minimum 8 karakter
-- Admin wajib ganti password saat first login
-
-### RBAC (Role-Based Access Control)
-- ADMIN — akses penuh
-- ANALIS_HUKUM — analisis dan review
-- OPD — upload dan lihat
-- REVIEWER — review finding
-- PIMPINAN — lihat laporan
-
-### Proteksi Dokumen
-- Upload divalidasi (tipe file, ukuran)
-- File hash untuk deteksi duplikasi
-- Path traversal protection
-- Dokumen diperlakukan sebagai DATA, bukan instruksi AI
-
-### Prompt Injection Protection
-- Dokumen regulasi tidak dapat mengoverride system prompt AI
-- Semua isi dokumen diperlakukan sebagai UNTRUSTED DATA
+1. **Privacy by default** — LOCAL ONLY mode, tidak ada data ke cloud tanpa izin
+2. **Prompt injection protection** — context regulasi di-wrap dengan marker eksplisit
+3. **FTS injection sanitization** — query search dibersihkan dari karakter berbahaya
+4. **Security headers** — X-Content-Type-Options, X-Frame-Options, CSP, dll.
+5. **Audit log** — semua aksi penting dicatat tanpa data sensitif
+6. **Human in the loop** — AI tidak bisa mengubah temuan VERIFIED
+7. **No LEGAL/ILLEGAL** — hanya status yang tidak bersifat final
 
 ---
 
-## Keterbatasan
-
-1. **TALAS AI bukan sistem hukum resmi** — Output wajib diverifikasi analis hukum.
-2. **AI dapat salah** — Konfidensialitas tinggi bukan jaminan kebenaran.
-3. **Database regulasi harus diupdate secara manual** — AI hanya dapat menganalisis regulasi yang ada di database.
-4. **OCR terbatas** — Dokumen scan dengan kualitas rendah mungkin tidak dapat diproses.
-5. **Local AI membutuhkan resource** — Model besar memerlukan RAM/VRAM yang signifikan.
-6. **Bukan pengganti Biro Hukum** — Gunakan TALAS AI sebagai alat bantu awal, bukan keputusan final.
-
----
-
-## Struktur Project
+## Struktur Proyek
 
 ```
 talas-ai/
-├── app/                    # Kode aplikasi utama
-│   ├── api/               # API endpoints
-│   ├── database/          # Koneksi dan konfigurasi database
-│   ├── models/            # SQLAlchemy models
-│   ├── schemas/           # Pydantic schemas
-│   ├── services/          # Business logic
-│   ├── prompts/           # AI system prompts
-│   ├── templates/         # HTML templates
-│   ├── static/            # CSS, JS, images
-│   └── utils/             # Utilities
-├── data/                  # Data aplikasi (database, dokumen, dll.)
-├── logs/                  # Log files
-├── tests/                 # Test suite
-├── scripts/               # Utility scripts
-├── desktop/               # PySide6 desktop launcher
-├── requirements.txt
+├── app/
+│   ├── api/
+│   │   ├── admin/          # Admin endpoints (users, audit, backup)
+│   │   ├── ai/             # AI provider endpoints
+│   │   ├── analysis/       # Analysis endpoints (Phase 9-13)
+│   │   ├── auth/           # Authentication
+│   │   ├── chat/           # Chatbot
+│   │   ├── dashboard/      # Dashboard stats
+│   │   ├── documents/      # Document management
+│   │   ├── regulations/    # Regulation library
+│   │   └── reports/        # Report generation
+│   ├── models/             # SQLAlchemy models
+│   ├── prompts/            # System prompts dan templates
+│   ├── services/
+│   │   ├── ai/             # AI Router dan providers
+│   │   ├── analysis/       # Analysis services
+│   │   ├── rag/            # RAG engine
+│   │   ├── reports/        # Report generator
+│   │   └── security/       # Auth, hashing, audit
+│   ├── static/             # Static files (PWA)
+│   ├── templates/          # HTML templates
+│   ├── config.py
+│   ├── dependencies.py
+│   └── main.py
+├── data/
+│   ├── backups/
+│   ├── documents/
+│   ├── exports/
+│   └── indexes/
+├── desktop/
+│   ├── launcher.py         # Pure Python launcher
+│   └── main.py             # PySide6 launcher (opsional)
+├── scripts/
+│   ├── backup.py           # Standalone backup script
+│   └── seed.py
+├── tests/
+│   ├── test_analysis.py
+│   ├── test_auth.py
+│   ├── test_backup.py
+│   ├── test_dashboard.py
+│   ├── test_documents.py
+│   ├── test_health.py
+│   ├── test_rag.py
+│   ├── test_regulations.py
+│   ├── test_reports.py
+│   ├── test_review.py
+│   └── test_security.py
 ├── .env.example
-├── run.py
-└── README.md
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
 
 ---
 
-## Development Roadmap
+## Lisensi & Disclaimer
 
-- ✅ Phase 1: Foundation
-- 🔄 Phase 2: Authentication/RBAC
-- 📋 Phase 3: Regulatory Library
-- 📋 Phase 4: Document Processing
-- 📋 Phase 5: Search Engine
-- 📋 Phase 6: Multi-AI Provider
-- 📋 Phase 7: RAG
-- 📋 Phase 8: Chatbot
-- 📋 Phase 9-11: Legal/Conflict/Consistency Analysis
-- 📋 Phase 12-14: Comparison/Review/Reports
-- 📋 Phase 15-20: Dashboard/Security/PWA/Packaging
+TALAS AI adalah alat bantu telaah regulasi. Semua output adalah **TINJAUAN AWAL** yang wajib diverifikasi oleh analis hukum yang berwenang sebelum digunakan dalam pengambilan keputusan resmi.
 
----
-
-*TALAS AI — Membantu ASN lebih efisien, keputusan tetap di tangan manusia.*
+**AI adalah co-pilot ASN, bukan pengambil keputusan hukum.**

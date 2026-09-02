@@ -40,6 +40,8 @@ ENV/
 
 # Database — jangan commit database production
 data/talas.db
+data/talas.db-shm
+data/talas.db-wal
 data/test_talas.db
 data/*.db
 data/documents/*
