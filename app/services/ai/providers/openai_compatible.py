@@ -1,12 +1,13 @@
 """
 TALAS AI — OpenAI-Compatible Provider
-Untuk cloud AI (OpenAI, Groq, Together, dll.) atau llama.cpp server.
+Untuk cloud AI (OpenAI, Groq, Together, OpenRouter, Mistral, DeepSeek, dll.)
+atau llama.cpp server.
 Cloud HANYA digunakan jika pengguna memberikan izin eksplisit.
 """
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import httpx
 
@@ -27,17 +28,20 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         provider_name: str = "openai_compatible",
         is_cloud: bool = True,
         timeout: int = 120,
+        extra_headers: Optional[Dict[str, str]] = None,
     ):
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.provider_name = provider_name
         self.is_cloud = is_cloud
         self.timeout = timeout
+        self._extra_headers = extra_headers or {}
 
     def _headers(self) -> dict:
         h = {"Content-Type": "application/json"}
         if self.api_key:
             h["Authorization"] = f"Bearer {self.api_key}"
+        h.update(self._extra_headers)
         return h
 
     async def chat(

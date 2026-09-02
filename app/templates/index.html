@@ -12,7 +12,9 @@
     <link rel="manifest" href="/static/manifest.json">
     <link rel="apple-touch-icon" href="/static/img/icon.svg">
     <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/ai-settings.css">
     <script src="/static/js/app.js" defer></script>
+    <script src="/static/js/ai-settings.js" defer></script>
     <title>TALAS AI — Telaah Regulasi</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -758,40 +760,141 @@
             <!-- ── AI & Model ── -->
             <section class="page-section" id="page-ai-model">
                 <div class="page-header">
-                    <h1>🤖 AI &amp; Model</h1>
-                    <p>Konfigurasi provider AI dan model yang digunakan</p>
+                    <h1>AI & Model</h1>
+                    <p>Konfigurasi provider AI, model, dan pengaturan per task</p>
                 </div>
 
-                <div class="card">
-                    <div class="card-title">🔒 Mode Privasi AI</div>
-                    <div style="padding:0.5rem 0; font-size:0.9rem;">
-                        <span class="dot dot-green"></span>
-                        <strong>LOCAL ONLY</strong> — Dokumen tidak dikirim ke cloud tanpa izin eksplisit.
+                <!-- Toast -->
+                <div id="ai-toast" class="ai-toast"></div>
+
+                <!-- Privacy Mode -->
+                <div class="card" style="margin-bottom:1rem">
+                    <div class="card-title">Mode Privasi AI</div>
+                    <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.875rem">
+                        Mengontrol apakah dokumen regulasi boleh diproses oleh layanan cloud.
+                        Default: <strong>LOCAL ONLY</strong>.
+                    </p>
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+                        <button class="btn btn-secondary btn-sm privacy-btn active" data-mode="local_only"
+                                onclick="AISettings.updatePrivacyMode('local_only')">
+                            Local Only
+                        </button>
+                        <button class="btn btn-secondary btn-sm privacy-btn" data-mode="ask_before_sending"
+                                onclick="AISettings.updatePrivacyMode('ask_before_sending')">
+                            Tanya Sebelum Kirim
+                        </button>
+                        <button class="btn btn-secondary btn-sm privacy-btn" data-mode="cloud_allowed"
+                                onclick="AISettings.updatePrivacyMode('cloud_allowed')">
+                            Izinkan Cloud
+                        </button>
                     </div>
-                    <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem;">
-                        Untuk mengubah mode privasi, edit file <code>.env</code> pada parameter <code>DEFAULT_AI_MODE</code>.
+                    <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem">
+                        Local Only: tidak ada data dikirim ke cloud. Tanya Sebelum Kirim: konfirmasi per request. Izinkan Cloud: tanpa konfirmasi.
                     </p>
                 </div>
 
-                <div class="card">
-                    <div class="card-title">📡 Status Provider</div>
-                    <div id="aiProviderDetail">
-                        <p style="color:var(--text-muted); font-size:0.875rem;">Memuat status provider...</p>
+                <!-- Status Live -->
+                <div class="card" style="margin-bottom:1rem">
+                    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+                        <span>Status Provider Aktif</span>
+                        <button class="btn btn-secondary btn-sm" onclick="AISettings.loadAll()">Refresh</button>
                     </div>
-                    <div style="margin-top:1rem;">
-                        <button class="btn btn-secondary btn-sm" onclick="loadProviders()">🔄 Refresh Status</button>
-                        <a href="/docs#/AI%20%26%20Model" target="_blank" class="btn btn-secondary btn-sm">📖 API Docs</a>
+                    <div id="ai-live-status">
+                        <p style="color:var(--text-muted);font-size:0.875rem">Memuat status...</p>
                     </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-title">⚙️ Konfigurasi Model per Task</div>
-                    <p style="font-size:0.8rem; color:var(--text-muted);">
-                        Konfigurasi model dapat dilakukan via endpoint <code>PUT /api/ai/task-config</code>.<br>
-                        Gunakan API docs untuk mengatur model per task (chat, legal_basis, conflict, dll.)
-                    </p>
+                <!-- Daftar Provider -->
+                <div class="card" style="margin-bottom:1rem">
+                    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+                        <span>Provider yang Dikonfigurasi</span>
+                        <button class="btn btn-primary btn-sm"
+                                onclick="AISettings.openProviderModal({mode:'create'})">+ Tambah Kustom</button>
+                    </div>
+                    <div id="provider-list">
+                        <p style="color:var(--text-muted);font-size:0.875rem">Memuat...</p>
+                    </div>
                 </div>
+
+                <!-- Preset Provider -->
+                <div class="card" style="margin-bottom:1rem">
+                    <div class="card-title">Tambah dari Preset</div>
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.875rem">
+                        Klik provider yang ingin ditambahkan. Provider yang memerlukan API Key akan meminta input.
+                    </p>
+                    <div id="preset-list" class="ai-preset-grid">
+                        <p style="color:var(--text-muted);font-size:0.875rem">Memuat preset...</p>
+                    </div>
+                </div>
+
+                <!-- Task Config -->
+                <div class="card" style="margin-bottom:1rem">
+                    <div class="card-title">Konfigurasi Model per Task</div>
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.875rem">
+                        Pilih provider dan model yang digunakan untuk setiap jenis analisis.
+                    </p>
+                    <div id="task-config-list">
+                        <p style="color:var(--text-muted);font-size:0.875rem">Memuat konfigurasi task...</p>
+                    </div>
+                </div>
+
             </section>
+
+            <!-- Provider Modal -->
+            <div id="provider-modal" class="ai-modal-overlay" style="display:none"
+                 onclick="if(event.target===this)AISettings.closeProviderModal()">
+                <div class="ai-modal">
+                    <div class="ai-modal-header">
+                        <h3 id="modal-title">Tambah Provider</h3>
+                        <button class="ai-modal-close" onclick="AISettings.closeProviderModal()">x</button>
+                    </div>
+                    <form id="provider-form" onsubmit="AISettings.submitProviderForm(event)">
+                        <input type="hidden" id="modal-mode" value="create">
+
+                        <div class="ai-form-row">
+                            <label>Nama (ID unik, huruf kecil)</label>
+                            <input type="text" id="modal-name" class="ai-input" required
+                                   pattern="[a-z0-9_-]+" placeholder="contoh: my-ollama">
+                        </div>
+                        <div class="ai-form-row">
+                            <label>Nama Tampilan</label>
+                            <input type="text" id="modal-display-name" class="ai-input" required
+                                   placeholder="contoh: Ollama Server Saya">
+                        </div>
+                        <div class="ai-form-row">
+                            <label>Base URL</label>
+                            <input type="url" id="modal-base-url" class="ai-input"
+                                   placeholder="contoh: http://localhost:11434">
+                        </div>
+                        <div class="ai-form-row">
+                            <label>Deskripsi (opsional)</label>
+                            <input type="text" id="modal-description" class="ai-input">
+                        </div>
+                        <div class="ai-form-row ai-form-checks">
+                            <label>
+                                <input type="checkbox" id="modal-is-enabled"> Aktifkan provider
+                            </label>
+                            <label>
+                                <input type="checkbox" id="modal-is-cloud"> Provider cloud
+                            </label>
+                            <label>
+                                <input type="checkbox" id="modal-requires-key"> Memerlukan API Key
+                            </label>
+                        </div>
+                        <div class="ai-form-row" id="modal-key-section" style="display:none">
+                            <label>API Key</label>
+                            <input type="password" id="modal-api-key" class="ai-input"
+                                   placeholder="Kosongkan untuk tidak mengubah">
+                            <p id="modal-key-hint" class="ai-hint"></p>
+                        </div>
+
+                        <div class="ai-modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="AISettings.closeProviderModal()">Batal</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <!-- ── Panduan Singkat ── -->
             <section class="page-section" id="page-pengaturan">
@@ -949,6 +1052,11 @@ function showPage(pageId, navEl) {
     };
     document.getElementById('topbarTitle').textContent = titles[pageId] || pageId;
     closeSidebar();
+
+    // Init halaman AI & Model saat pertama dibuka
+    if (pageId === 'ai-model' && _token) {
+        AISettings.init(_token);
+    }
 }
 
 function toggleSidebar() {
@@ -983,6 +1091,14 @@ async function apiPost(path, body) {
         body: JSON.stringify(body),
     });
     return r.json();
+}
+
+// Auto-login jika ada token di sessionStorage
+function loadSavedToken() {
+    const saved = sessionStorage.getItem('talas_token');
+    if (saved) {
+        _token = saved;
+    }
 }
 
 // ── Health check ──────────────────────────────────────────────────
@@ -1060,6 +1176,23 @@ async function sendChat() {
     const msg = (input.value || '').trim();
     if (!msg) return;
 
+    // Coba login otomatis jika belum ada token
+    if (!_token) {
+        const username = prompt('Login diperlukan. Username:');
+        const password = prompt('Password:');
+        if (!username || !password) return;
+        try {
+            const loginData = await apiPost('/api/auth/login', { username, password });
+            if (loginData.access_token) {
+                _token = loginData.access_token;
+                sessionStorage.setItem('talas_token', _token);
+            }
+        } catch (e) {
+            appendChatMsg('Login gagal. Silakan coba lagi.', 'assistant');
+            return;
+        }
+    }
+
     input.value = '';
     const btn = document.getElementById('sendBtn');
     btn.disabled = true;
@@ -1121,6 +1254,7 @@ if ('serviceWorker' in navigator) {
 // ── Init ──────────────────────────────────────────────────────────
 
 async function init() {
+    loadSavedToken();
     await checkHealth();
     await loadDashboardStats();
     await loadProviders();
@@ -1132,7 +1266,6 @@ setInterval(async () => {
     await loadDashboardStats();
 }, 60000);
 
-init();
-</script>
+init();</script>
 </body>
 </html>

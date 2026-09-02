@@ -102,6 +102,7 @@ async def lifespan(app: FastAPI):
 
     # Setup AI Router
     from app.services.ai.router import setup_ai_router
+    from app.services.ai.provider_registry import sync_providers_from_db
     setup_ai_router(
         privacy_mode=settings.DEFAULT_AI_MODE,
         ollama_url=settings.OLLAMA_BASE_URL if settings.OLLAMA_ENABLED else None,
@@ -112,6 +113,26 @@ async def lifespan(app: FastAPI):
         openai_key=settings.OPENAI_API_KEY,
         openai_url=settings.OPENAI_BASE_URL,
     )
+    # Sync provider tambahan dari database
+    from app.services.ai.router import get_ai_router
+    session_factory = get_session_maker()
+    async with session_factory() as session:
+        await sync_providers_from_db(session, get_ai_router())
+        # Load task configs dari database
+        from app.models.ai import AITaskConfig
+        from sqlalchemy import select as sa_select
+        result = await session.execute(
+            sa_select(AITaskConfig).where(AITaskConfig.user_id == None)
+        )
+        for cfg in result.scalars().all():
+            if cfg.provider_name and cfg.model_id:
+                get_ai_router().set_task_config(
+                    task_name=cfg.task_name,
+                    provider_name=cfg.provider_name,
+                    model_id=cfg.model_id,
+                    temperature=cfg.temperature or 0.1,
+                    max_tokens=cfg.max_tokens,
+                )
     logger.info("AI Router initialized.")
 
     # Seed database jika first run
